@@ -1,0 +1,37 @@
+---
+- name: Gather Facts
+  hosts: all
+  gather_facts: no
+  tasks:
+    #   - name: set results fact
+    #     set_fact:
+    #       results_fact: []
+      #   - name: get hostname
+      #     command: hostname
+  - name: yum update
+    yum:
+      name: '*'
+      state: latest
+      update_cache: no
+    register: yum_output
+  - set_fact:
+      results_fact: "{{ results_fact + [ yum_output.results | first ] }}"
+
+  - name: debug yum_output.results
+    debug:
+      msg: "{{ yum_output.results | to_json }}"
+
+  - name: save to file
+    blockinfile:
+      path: /tmp/output_file.txt
+      insertafter: EOF
+      marker: "# {{ inventory_hostname }}"
+      block: "{{ yum_output.results[] }}"
+      create: yes
+    delegate_to: localhost
+    when: yum_output.results is defined
+
+
+      #  - name: reboot server
+      #reboot:
+      #reboot_timeout: 200

@@ -1,6 +1,7 @@
 ---
-- name: Gather Facts
+- name: Patch LX systems
   hosts: all
+  max_fail_percentage: 30
   gather_facts: no
   tasks:
     #   - name: set results fact
@@ -8,7 +9,7 @@
     #       results_fact: []
       #   - name: get hostname
       #     command: hostname
-  - name: yum update
+  - name: Update system packages
     yum:
       name: '*'
       state: latest
@@ -21,7 +22,7 @@
     debug:
       msg: "{{ yum_output.results | to_json }}"
 
-  - name: save to file
+  - name: Save results to a file
     blockinfile:
       path: /tmp/output_file.txt
       insertafter: EOF
